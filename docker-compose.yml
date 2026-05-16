@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ldm
+      POSTGRES_PASSWORD: ldm
+      POSTGRES_DB: ldm
+    ports:
+      - "5432:5432"
+    volumes:
+      - ldm_pgdata:/var/lib/postgresql/data
+
+volumes:
+  ldm_pgdata:

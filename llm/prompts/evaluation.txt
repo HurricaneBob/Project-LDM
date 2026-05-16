@@ -1,0 +1,28 @@
+Provide holistic leadership evaluation based on social dynamics across 5 scenarios.
+
+Scenario summaries:
+{scenario_summaries}
+
+Trust/cohesion trends:
+{trends}
+
+Key memories:
+{memories}
+
+Return JSON:
+{{
+  "leadership_analysis": "2-3 paragraphs",
+  "strengths": ["..."],
+  "weaknesses": ["..."],
+  "cohesion_impact": "paragraph",
+  "emotional_impact": "paragraph",
+  "dimension_scores": {{
+    "emotional_regulation": 0-10,
+    "conflict_mediation": 0-10,
+    "trust_building": 0-10,
+    "adaptability": 0-10,
+    "leadership_communication": 0-10
+  }}
+}}
+
+Evaluate communication influence on stability, NOT technical correctness.

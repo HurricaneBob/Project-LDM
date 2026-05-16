@@ -1,0 +1,9 @@
+Extract ONE compressed semantic memory sentence (max 25 words) about leadership impact.
+
+Tone: {tone}
+User message: {user_message}
+Applied changes: {applied_delta}
+
+Return JSON: {{"memory": "..."}}
+
+Do not quote the user verbatim. Focus on trust/emotion/relationship impact.

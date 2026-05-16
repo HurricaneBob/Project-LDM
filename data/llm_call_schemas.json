@@ -1,0 +1,211 @@
+{
+  "system_prompt": {
+    "role": "Dynamic Dialogue & Competency Evaluation Engine — Project LDM. Aligning with UN SDG 8: evaluate holistic human competencies, not test scores.",
+    "user_role": "Project Manager leading a global cross-functional team.",
+    "core_rules": [
+      "Output ONLY valid JSON matching the schema for each call type.",
+      "Never compute numeric parameter updates — classify communication signals only.",
+      "Keep responses concise: 2-4 sentences per dialogue block.",
+      "Active agents per scenario are strictly defined — reference only those agents.",
+      "All relationship matrices use three sub-dimensions: trust, respect, communication_quality."
+    ],
+    "agents": {
+      "Commander": { "focus": ["Decision-Making", "Leadership", "Stress Management", "Execution Speed"], "active_in": [1, 3] },
+      "Facilitator": { "focus": ["Communication Style", "Conflict Resolution", "Team Motivation", "Empathy"], "active_in": [2, 5] },
+      "Strategist": { "focus": ["Analytical Thinking", "Prioritization", "Risk Awareness", "Decision-Making"], "active_in": [1, 3] },
+      "Supporter": { "focus": ["Empathy", "Emotional Awareness", "Psychological Safety", "Inclusive Communication"], "active_in": [2, 4] },
+      "Adaptive": { "focus": ["Cultural Adaptability", "Communication Flexibility", "Situational Awareness", "Conflict Resolution"], "active_in": [5] }
+    },
+    "parameter_note": "Do NOT compute or output user psychological parameters or backend state. Output semantic signal scores (0.0–1.0) only. Backend owns all numeric state."
+  },
+  "call_types": {
+    "1_game_init": {
+      "input_schema": {
+        "scenario_id": 1,
+        "active_agents": ["Commander", "Strategist"]
+      },
+      "output_schema": {
+        "selected_scenario": "Scenario 1",
+        "situation_brief": "[Scenario 1 Time Pressure setup, 2-4 sentences, English. Introduce tension without resolving it.]"
+      }
+    },
+    "2_scenario_init": {
+      "input_schema": {
+        "scenario_id": "[2 | 3 | 4 | 5]",
+        "active_agents": "[derived from scenario_id]",
+        "compressed_state": {
+          "memory_summary": ["[1-2 sentence narrative summary of prior scenario outcomes]"],
+          "environmental_state": {
+            "deadline_pressure": "[0-100, backend-supplied]",
+            "workload": "[0-100, backend-supplied]",
+            "project_stability": "[0-100, backend-supplied]"
+          },
+          "agent_mood_summary": {
+            "[AgentName]": { "stress": "[low|moderate|high]", "confidence": "[low|moderate|high]" }
+          }
+        }
+      },
+      "output_schema": {
+        "selected_scenario": "Scenario [N]",
+        "situation_brief": "[Scene setup referencing only active agents for this scenario, 2-4 sentences, English]"
+      },
+      "sub_type_active_agents": {
+        "2A_scenario_2": ["Facilitator", "Supporter"],
+        "2B_scenario_3": ["Commander", "Strategist"],
+        "2C_scenario_4": ["Supporter"],
+        "2D_scenario_5": ["Facilitator", "Adaptive"]
+      }
+    },
+    "3A_semantic_analysis": {
+      "input_schema": {
+        "user_input": "{user_input}",
+        "active_agents": ["[AgentName]", "..."],
+        "scenario_context_summary": "[1 sentence: current tension/dilemma]"
+      },
+      "output_schema": {
+        "communication_signals": {
+          "empathy": "[0.0–1.0]",
+          "clarity": "[0.0–1.0]",
+          "decisiveness": "[0.0–1.0]",
+          "aggression": "[0.0–1.0]",
+          "supportiveness": "[0.0–1.0]",
+          "adaptability": "[0.0–1.0]"
+        },
+        "leadership_style_tag": "[Directive | Collaborative | Avoidant | Delegative | Coaching]",
+        "conflict_escalation_risk": "[low | moderate | high]"
+      },
+      "backend_then_computes": {
+        "note": "Backend applies deterministic formulas using signal scores.",
+        "examples": [
+          "trust       += empathy * 5 + clarity * 3",
+          "stress      -= supportiveness * 4",
+          "confidence  += decisiveness * 3 - aggression * 2",
+          "respect     += clarity * 4 - aggression * 5",
+          "Character   += (empathy + adaptability) / 2 * 3",
+          "Motivation  += supportiveness * 3 - aggression * 2",
+          "All values clamped: min(100, max(0, value))"
+        ],
+        "hidden_backend_variables": [
+          "volatility (not sent to LLM)",
+          "burnout_risk (not sent to LLM)",
+          "latent_resentment (not sent to LLM)",
+          "emotional_sensitivity (not sent to LLM)"
+        ]
+      }
+    },
+    "3B_dialogue_generation": {
+      "input_schema": {
+        "active_agents": ["[AgentName]", "..."],
+        "speaking_agent": "[AgentName]",
+        "compressed_state": {
+          "environmental_state": {
+            "deadline_pressure": "[0-100]",
+            "workload": "[0-100]",
+            "project_stability": "[0-100]"
+          },
+          "relationship_summary": {
+            "[Agent1]_to_user": { "trust": "[0-100]", "respect": "[0-100]", "communication_quality": "[0-100]" },
+            "[Agent2]_to_user": { "trust": "[0-100]", "respect": "[0-100]", "communication_quality": "[0-100]" },
+            "[Agent1]_to_[Agent2]": { "trust": "[0-100]", "respect": "[0-100]", "communication_quality": "[0-100]" }
+          },
+          "agent_mood_summary": {
+            "[AgentName]": { "stress": "[low|moderate|high]", "confidence": "[low|moderate|high]" }
+          },
+          "memory_summary": ["[1-2 key narrative beats from this scenario so far]"]
+        }
+      },
+      "output_schema": {
+        "speaking_agent": "[AgentName]",
+        "ai_response": "[Natural agent dialogue deepening dilemma without resolving it, 2-4 sentences, English]"
+      }
+    },
+    "4_scenario_summary": {
+      "input_schema": {
+        "scenario_id": "[1–5]",
+        "parameter_deltas": {
+          "user_psych_delta": { "Character": "[±N]", "Emotion": "[±N]", "Environment": "[±N]", "Motivation": "[±N]", "Self_Esteem": "[±N]" },
+          "relationship_deltas": {
+            "[Agent]_to_user_trust": "[±N]",
+            "[Agent]_to_user_respect": "[±N]",
+            "[Agent]_to_user_communication_quality": "[±N]"
+          },
+          "stabilization_probability": "[0.0–1.0 computed by backend as f(cohesion, stress, volatility)]"
+        },
+        "final_exchange_summary": "[2-3 sentence plain-text summary of final user-agent exchange]"
+      },
+      "output_schema": {
+        "scenario_outcome_summary": "[1-2 sentence narrative: how scenario resolved or stabilized, immediate consequences, English]"
+      }
+    },
+    "5_holistic_summary": {
+      "input_schema": {
+        "scenario_summaries": {
+          "scenario_1": "[outcome summary text]",
+          "scenario_2": "[outcome summary text]",
+          "scenario_3": "[outcome summary text]",
+          "scenario_4": "[outcome summary text]",
+          "scenario_5": "[outcome summary text]"
+        },
+        "global_parameter_deltas": {
+          "Character": "[start→end, ±delta]",
+          "Emotion": "[start→end, ±delta]",
+          "Environment": "[start→end, ±delta]",
+          "Motivation": "[start→end, ±delta]",
+          "Self_Esteem": "[start→end, ±delta]"
+        },
+        "leadership_style_distribution": {
+          "Directive": "[count across all turns]",
+          "Collaborative": "[count]",
+          "Avoidant": "[count]",
+          "Delegative": "[count]",
+          "Coaching": "[count]"
+        }
+      },
+      "output_schema": {
+        "holistic_results": {
+          "parameter_deltas_analysis": "[Brief analysis of overall parameter arc across all 5 scenarios, English]",
+          "leadership_pattern_summary": "[1 sentence on dominant leadership style observed and its organizational impact]",
+          "hr_competency_verdict": "[2-sentence HR-style evaluation: SDG 8 alignment, holistic competency, growth potential, English]"
+        }
+      }
+    }
+  },
+  "backend_state_schema": {
+    "user_psych": {
+      "Character": 50,
+      "Emotion": 50,
+      "Environment": 50,
+      "Motivation": 50,
+      "Self_Esteem": 50
+    },
+    "agent_parameters": {
+      "[AgentName]": {
+        "static": { "patience": 50, "experience": 50 },
+        "internal": { "confidence": 50, "stress": 50, "fatigue": 50 }
+      }
+    },
+    "relationship_matrix": {
+      "[Agent]_to_user": { "trust": 50, "respect": 50, "communication_quality": 50 },
+      "[Agent1]_to_[Agent2]": { "trust": 50, "respect": 50, "communication_quality": 50 }
+    },
+    "environmental_state": {
+      "deadline_pressure": 50,
+      "workload": 50,
+      "project_stability": 50
+    },
+    "hidden_variables": {
+      "volatility": 30,
+      "burnout_risk": 20,
+      "latent_resentment": 10,
+      "emotional_sensitivity": 40
+    },
+    "event_log": [
+      {
+        "turn": "[N]",
+        "event_type": "[e.g. conflict_mediation]",
+        "signal_used": "[empathy: 0.82]",
+        "impact": { "trust": "+6", "stress": "-4" }
+      }
+    ]
+  }
+}

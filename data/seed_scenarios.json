@@ -1,0 +1,131 @@
+{
+  "agents": [
+    {
+      "key": "commander",
+      "name": "The Commander",
+      "role": "Decisive Leader",
+      "static_params": { "patience": 45, "resilience": 80, "experience": 85 },
+      "cpb_profile": {
+        "character": { "discipline": 85, "responsibility": 80, "perseverance": 88, "empathy": 45 },
+        "emotional_style": { "emotional_reactivity": 55, "emotional_stability": 70, "rejection_sensitivity": 40 },
+        "temperament": { "emotional_sensitivity": 45, "energy_level": 75 },
+        "self_esteem": { "global_self_esteem": 78 },
+        "self_concept": { "general_self_efficacy": 88 },
+        "life_experience": { "learned_resilience_level": 82 },
+        "personal_info": { "name": "The Commander", "current_occupation": "Team Lead" }
+      }
+    },
+    {
+      "key": "facilitator",
+      "name": "The Facilitator",
+      "role": "Collaborative Mediator",
+      "static_params": { "patience": 80, "resilience": 65, "experience": 70 },
+      "cpb_profile": {
+        "character": { "discipline": 65, "empathy": 90, "perseverance": 70 },
+        "emotional_style": { "emotional_reactivity": 50, "emotional_stability": 68, "rejection_sensitivity": 55 },
+        "temperament": { "emotional_sensitivity": 70, "energy_level": 60 },
+        "self_esteem": { "global_self_esteem": 72 },
+        "self_concept": { "general_self_efficacy": 70 },
+        "life_experience": { "learned_resilience_level": 65 },
+        "personal_info": { "name": "The Facilitator", "current_occupation": "Team Coordinator" }
+      }
+    },
+    {
+      "key": "strategist",
+      "name": "The Strategist",
+      "role": "Analytical Planner",
+      "static_params": { "patience": 60, "resilience": 75, "experience": 88 },
+      "cpb_profile": {
+        "character": { "discipline": 88, "responsibility": 75, "perseverance": 80, "empathy": 50 },
+        "emotional_style": { "emotional_reactivity": 45, "emotional_stability": 75, "rejection_sensitivity": 45 },
+        "temperament": { "emotional_sensitivity": 50, "energy_level": 62 },
+        "self_esteem": { "global_self_esteem": 75 },
+        "self_concept": { "general_self_efficacy": 90 },
+        "life_experience": { "learned_resilience_level": 78 },
+        "personal_info": { "name": "The Strategist", "current_occupation": "Strategy Lead" }
+      }
+    },
+    {
+      "key": "supporter",
+      "name": "The Supporter",
+      "role": "Empathetic Coach",
+      "static_params": { "patience": 85, "resilience": 60, "experience": 65 },
+      "cpb_profile": {
+        "character": { "discipline": 55, "empathy": 95, "perseverance": 60 },
+        "emotional_style": { "emotional_reactivity": 65, "emotional_stability": 55, "rejection_sensitivity": 75 },
+        "temperament": { "emotional_sensitivity": 85, "energy_level": 58 },
+        "self_esteem": { "global_self_esteem": 68 },
+        "self_concept": { "general_self_efficacy": 65 },
+        "life_experience": { "learned_resilience_level": 58 },
+        "personal_info": { "name": "The Supporter", "current_occupation": "People Partner" }
+      }
+    },
+    {
+      "key": "adaptive",
+      "name": "The Adaptive",
+      "role": "Situational Navigator",
+      "static_params": { "patience": 70, "resilience": 72, "experience": 75 },
+      "cpb_profile": {
+        "character": { "discipline": 60, "empathy": 75, "perseverance": 72 },
+        "emotional_style": { "emotional_reactivity": 52, "emotional_stability": 65, "rejection_sensitivity": 50 },
+        "temperament": { "emotional_sensitivity": 62, "energy_level": 68 },
+        "self_esteem": { "global_self_esteem": 70 },
+        "self_concept": { "general_self_efficacy": 72 },
+        "life_experience": { "learned_resilience_level": 70 },
+        "personal_info": { "name": "The Adaptive", "current_occupation": "Cross-functional Lead" }
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "slug": "time-pressure",
+      "title": "Scenario 1: Time Pressure",
+      "domain": "corporate",
+      "sequence_index": 1,
+      "stabilization_threshold": 0.72,
+      "opening_situation": "A critical deliverable is due tonight. The Commander and Strategist disagree on whether to ship a partial solution or delay for quality. The team is watching your leadership under deadline pressure.",
+      "agent_keys": ["commander", "strategist"],
+      "delta_weights": { "trust": 1.0, "stress": 1.1 }
+    },
+    {
+      "slug": "team-dynamics",
+      "title": "Scenario 2: Team Dynamics",
+      "domain": "collaboration",
+      "sequence_index": 2,
+      "stabilization_threshold": 0.73,
+      "opening_situation": "Quiet resentment has built after a rushed decision. The Facilitator wants open dialogue; the Supporter worries some voices still feel unsafe. Morale is fragile.",
+      "agent_keys": ["facilitator", "supporter"],
+      "delta_weights": { "respect": 1.1, "communication_quality": 1.15 }
+    },
+    {
+      "slug": "strategic-pivot",
+      "title": "Scenario 3: Strategic Pivot",
+      "domain": "strategy",
+      "sequence_index": 3,
+      "stabilization_threshold": 0.74,
+      "opening_situation": "Leadership changed priorities overnight. The Commander pushes for fast execution; the Strategist demands a written risk assessment before committing resources.",
+      "agent_keys": ["commander", "strategist"],
+      "delta_weights": { "trust": 0.95, "respect": 1.1 }
+    },
+    {
+      "slug": "psychological-safety",
+      "title": "Scenario 4: Psychological Safety",
+      "domain": "wellbeing",
+      "sequence_index": 4,
+      "stabilization_threshold": 0.75,
+      "opening_situation": "A team member was blamed publicly in a standup. The Supporter reports withdrawal and declining participation. Trust in leadership is at stake.",
+      "agent_keys": ["supporter"],
+      "delta_weights": { "communication_quality": 1.2, "trust": 1.1 }
+    },
+    {
+      "slug": "cross-cultural",
+      "title": "Scenario 5: Cross-Cultural Tension",
+      "domain": "global",
+      "sequence_index": 5,
+      "stabilization_threshold": 0.76,
+      "opening_situation": "A distributed team misread tone in written updates. The Facilitator sees communication gaps; the Adaptive urges style-flexible leadership before the client review.",
+      "agent_keys": ["facilitator", "adaptive"],
+      "delta_weights": { "stress": 1.0, "communication_quality": 1.1 }
+    }
+  ]
+}

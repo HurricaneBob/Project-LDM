@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LDM Leadership Sim — Test Client</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    #log { border: 1px solid #ccc; padding: 1rem; height: 320px; overflow-y: auto; background: #fafafa; }
+    .line { margin: 0.4rem 0; }
+    .meta { color: #666; font-size: 0.85rem; }
+    input, button { font-size: 1rem; padding: 0.4rem; }
+    #input { width: 70%; }
+  </style>
+</head>
+<body>
+  <h1>AI Leadership Simulation</h1>
+  <p class="meta">API: <code>http://localhost:5000</code></p>
+  <button id="startBtn">Start Scenario 1</button>
+  <div id="stats" class="meta"></div>
+  <div id="log"></div>
+  <p>
+    <input id="input" placeholder="Your message as team leader..." />
+    <button id="sendBtn" disabled>Send</button>
+  </p>
+  <button id="evalBtn" disabled>Final Evaluation</button>
+  <script>
+    const base = 'http://localhost:5000';
+    let sessionId = null;
+    const log = document.getElementById('log');
+    const stats = document.getElementById('stats');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
+    const evalBtn = document.getElementById('evalBtn');
+
+    function append(text, cls) {
+      const d = document.createElement('div');
+      d.className = cls || 'line';
+      d.textContent = text;
+      log.appendChild(d);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function showDialogue(narration, lines) {
+      if (narration) append('[Scene] ' + narration, 'meta');
+      (lines || []).forEach(function(l) { append(l.name + ': ' + l.line); });
+    }
+
+    function updateStats(data) {
+      var s = data.state_summary || data;
+      stats.textContent = 'Cohesion: ' + (data.cohesion != null ? data.cohesion : (s.cohesion || '-')) +
+        ' | P(stabilize): ' + (data.p_stabilize != null ? data.p_stabilize : (s.p_stabilize || '-'));
+    }
+
+    document.getElementById('startBtn').onclick = async function() {
+      log.innerHTML = '';
+      var r = await fetch(base + '/api/scenario/init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scenario_index: 1 })
+      });
+      var data = await r.json();
+      if (!r.ok) { append('Error: ' + JSON.stringify(data)); return; }
+      sessionId = data.session_id;
+      append('[Scenario] ' + data.scenario.title);
+      append(data.opening_narration);
+      showDialogue(null, data.dialogue);
+      updateStats(data);
+      sendBtn.disabled = false;
+      evalBtn.disabled = false;
+    };
+
+    sendBtn.onclick = async function() {
+      var msg = input.value.trim();
+      if (!msg || !sessionId) return;
+      append('You: ' + msg);
+      input.value = '';
+      var r = await fetch(base + '/api/scenario/interact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId, user_message: msg })
+      });
+      var data = await r.json();
+      if (!r.ok) { append('Error: ' + JSON.stringify(data)); return; }
+      if (data.narration) showDialogue(data.narration, null);
+      showDialogue(null, data.dialogue);
+      updateStats(data);
+      if (data.scenario_complete) {
+        append('[Scenario complete]' + (data.next_scenario_id ? ' Advancing...' : ' Session done.'));
+        if (data.opening_narration) {
+          append(data.opening_narration);
+          showDialogue(null, data.dialogue);
+        }
+      }
+    };
+
+    evalBtn.onclick = async function() {
+      var r = await fetch(base + '/api/evaluation/final', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId })
+      });
+      var data = await r.json();
+      append('[Evaluation] ' + (data.evaluation && data.evaluation.leadership_analysis || JSON.stringify(data)));
+    };
+
+    input.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendBtn.click(); });
+  </script>
+</body>
+</html>

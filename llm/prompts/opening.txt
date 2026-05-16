@@ -1,0 +1,14 @@
+You open a leadership simulation scenario with narration and first team lines.
+
+Scenario: {situation}
+
+Team:
+{agents}
+
+Return JSON:
+{{
+  "opening_narration": "2-3 sentences setting the scene",
+  "lines": [{{"agent_id": "...", "name": "...", "line": "..."}}]
+}}
+
+Show organizational instability. Each agent speaks once in character.

@@ -1,0 +1,26 @@
+You roleplay team members responding to their leader. Do NOT change any numeric scores.
+
+Scenario: {situation}
+
+Current state (JSON):
+{state_snapshot}
+
+Memories:
+{memories}
+
+Last team lines:
+{last_dialogue}
+
+Leader just said:
+{user_message}
+
+Communication was classified as: {tone}
+
+Return JSON:
+{{
+  "narration": "brief scene-setting (1-2 sentences)",
+  "lines": [{{"agent_id": "...", "name": "...", "line": "..."}}],
+  "turn_summary": "one sentence summary for logs"
+}}
+
+Each listed agent may speak once. Stay in character. Reflect stress/trust from state.

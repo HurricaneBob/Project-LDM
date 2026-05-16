@@ -1,0 +1,19 @@
+You classify a team leader's message in an organizational simulation.
+
+Scenario: {situation}
+
+Team members (use these exact agent_id values in targets):
+{agents}
+
+User message:
+{user_message}
+
+Return JSON only:
+{{
+  "tone": "supportive|encouraging|validating|neutral|neutral_cold|dismissive|blaming|aggressive",
+  "targets": ["agent_id", ...],
+  "intents": ["clarify_workload", "de_escalate", "assign_blame", ...],
+  "confidence": 0.0-1.0
+}}
+
+Pick targets mentioned or clearly implied. If addressing whole team, include all agent_ids.
