@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* ═══ BRAND ═══ */
+  --color-primary: #A855F7;
+  --color-primary-hover: #C084FC;
+  --color-secondary: #FFFFFF;
+  --color-secondary-hover: #F4F4F5;
+
+  /* ═══ NEUTRAL (DARK) ═══ */
+  --color-bg: #0E0E14;
+  --color-surface: #1A1A24;
+  --color-surface-hi: #27273A;
+  --color-border: #2E2E40;
+  --color-divider: #1F1F2A;
+
+  /* ═══ TEXT ═══ */
+  --color-text-primary: #FAFAFA;
+  --color-text-secondary: #A1A1AA;
+  --color-text-muted: #71717A;
+
+  /* ═══ SEMANTIC ═══ */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #06B6D4;
+
+  /* ═══ PERSONA ═══ */
+  --color-persona-commander: #F59E0B;
+  --color-persona-facilitator: #EC4899;
+  --color-persona-strategist: #3B82F6;
+  --color-persona-supporter: #84CC16;
+  --color-persona-adaptive: #06B6D4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
+    system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  /* subtle dot pattern over entire bg */
+  background-image: radial-gradient(
+    circle,
+    rgba(168, 85, 247, 0.05) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
+/* ═══ Reusable utilities ═══ */
+@layer utilities {
+  .dot-pattern {
+    background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+    background-size: 8px 8px;
+  }
+
+  .dot-pattern-dense {
+    background-image: radial-gradient(circle, currentColor 1.5px, transparent 1.5px);
+    background-size: 6px 6px;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 24px rgba(168, 85, 247, 0.28);
+  }
+
+  .glow-primary-hover {
+    box-shadow: 0 0 36px rgba(168, 85, 247, 0.45);
+  }
+
+  .glow-white {
+    box-shadow: 0 0 32px rgba(255, 255, 255, 0.15);
+  }
+
+  .glow-white-hover {
+    box-shadow: 0 0 48px rgba(255, 255, 255, 0.28);
+  }
+
+  .focus-ring-primary {
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.18);
+  }
+}
+
+/* Persona character ambient float (used by PersonaCharacter). Begins after
+   the fade-in finishes so the entrance and float don't fight. */
+@keyframes character-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+.persona-character-float {
+  animation: character-float 3s ease-in-out 400ms infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .persona-character-float { animation: none; }
+}
+
+/* AI response halftone background — shown while waiting on the model.
+   Fade-in is quick (350ms); fade-out lingers (800ms) so the glow doesn't
+   vanish the instant a reply arrives. */
+.halftone-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 800ms ease-out;
+
+  background:
+    /* Top: dense white dot grid */
+    radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.30) 1px,
+      transparent 1.5px
+    ) 0 0 / 5px 5px,
+    /* Upper-left lavender bloom */
+    radial-gradient(
+      ellipse at 30% 30%,
+      rgba(196, 181, 253, 0.25) 0%,
+      transparent 50%
+    ),
+    /* Lower-right deep purple bloom */
+    radial-gradient(
+      ellipse at 70% 70%,
+      rgba(124, 58, 237, 0.35) 0%,
+      transparent 55%
+    ),
+    /* Center base — violet → indigo → transparent */
+    radial-gradient(
+      ellipse at center,
+      rgba(139, 92, 246, 0.4) 0%,
+      rgba(99, 102, 241, 0.2) 35%,
+      transparent 70%
+    );
+
+  /* Soft circular fade so the pattern doesn't terminate in a hard square. */
+  -webkit-mask-image: radial-gradient(ellipse at center, black 35%, transparent 85%);
+          mask-image: radial-gradient(ellipse at center, black 35%, transparent 85%);
+
+  animation: halftone-breath 5s ease-in-out infinite;
+}
+
+.halftone-bg.is-visible {
+  opacity: 1;
+  /* Fade-in faster than fade-out (asymmetric transition). */
+  transition: opacity 350ms ease-out;
+}
+
+@keyframes halftone-breath {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halftone-bg { animation: none; }
+}
+
+/* Removes browser default focus while we provide our own */
+button:focus,
+input:focus,
+textarea:focus {
+  outline: none;
+}
+
+/* Scrollbar polish */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-hi);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border);
+}

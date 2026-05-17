@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, model_validator
 
 
 class CommunicationSignals(BaseModel):
@@ -18,9 +18,39 @@ class SemanticAnalysisResponse(BaseModel):
     conflict_escalation_risk: str = "moderate"
 
 
+_SPEAKER_KEYS = {"speaking_agent", "agent_id", "agent", "speaker", "name", "persona", "persona_id"}
+_TEXT_KEYS = {
+    "ai_response", "dialogue_text", "response", "message", "text", "utterance",
+    "content", "statement", "line", "reply", "quote", "speech", "words", "says",
+    "dialogue", "spoken_text", "agent_response",
+}
+
+
 class DialogueLine(BaseModel):
-    speaking_agent: str
-    ai_response: str
+    model_config = ConfigDict(populate_by_name=True, extra="allow")
+    speaking_agent: str = Field(validation_alias=AliasChoices(*_SPEAKER_KEYS))
+    ai_response: str = Field(validation_alias=AliasChoices(*_TEXT_KEYS))
+
+    @model_validator(mode="before")
+    @classmethod
+    def _flexible_keys(cls, data):
+        if not isinstance(data, dict):
+            return data
+        out = dict(data)
+        if not any(k in out for k in _SPEAKER_KEYS):
+            for k, v in data.items():
+                if isinstance(v, str) and (
+                    "agent" in k.lower() or "speaker" in k.lower() or "name" in k.lower()
+                ):
+                    out["speaking_agent"] = v
+                    break
+        if not any(k in out for k in _TEXT_KEYS):
+            speaker_val = out.get("speaking_agent")
+            for k, v in data.items():
+                if isinstance(v, str) and v != speaker_val and len(v) > 10:
+                    out["ai_response"] = v
+                    break
+        return out
 
 
 class DialogueGenerationResponse(BaseModel):

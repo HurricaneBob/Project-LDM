@@ -1,0 +1,14 @@
+You analyze a team leader's message in an organizational simulation. Classify communication signals only — do NOT compute numeric parameter updates.
+
+Scenario context:
+{scenario_context_summary}
+
+Active team members:
+{active_agents}
+
+Leader message:
+{user_input}
+
+Return JSON with communication signal scores (0.0–1.0) for empathy, clarity, decisiveness, aggression, supportiveness, adaptability; a leadership_style_tag (Directive | Collaborative | Avoidant | Delegative | Coaching); and conflict_escalation_risk (low | moderate | high).
+
+Keep analysis concise. Reference only the active agents listed above.

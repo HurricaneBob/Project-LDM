@@ -23,6 +23,7 @@ class LLMService:
         payload = {
             "scenario_id": scenario_id,
             "active_agents": [to_display_name(a) for a in active_agents],
+            "scenario_context_summary": f"Scenario {scenario_id} initialization",
         }
         prompt = build_call_prompt("1_game_init", payload)
         return generate_json("1_game_init", prompt, GameInitResponse)
@@ -37,6 +38,9 @@ class LLMService:
             "scenario_id": scenario_id,
             "active_agents": [to_display_name(a) for a in active_agents],
             "compressed_state": compressed_state,
+            "scenario_context_summary": compressed_state.get("memory_summary", [""])[0]
+            if compressed_state.get("memory_summary")
+            else f"Scenario {scenario_id}",
         }
         prompt = build_call_prompt("2_scenario_init", payload)
         return generate_json("2_scenario_init", prompt, ScenarioInitResponse)
@@ -61,12 +65,18 @@ class LLMService:
         compressed_state: dict,
         user_input: str,
         max_speakers: int = 3,
+        scenario_context_summary: str = "",
+        tone: str = "neutral",
+        last_dialogue: str = "",
     ) -> DialogueGenerationResponse:
         payload = {
             "active_agents": [to_display_name(a) for a in active_agents],
             "compressed_state": compressed_state,
             "user_message": user_input,
             "max_speakers": max_speakers,
+            "scenario_context_summary": scenario_context_summary,
+            "tone": tone,
+            "last_dialogue": last_dialogue,
         }
         prompt = build_call_prompt("3B_dialogue_generation", payload)
         prompt += f"\nReturn JSON with 'lines' array of up to {max_speakers} objects: speaking_agent, ai_response. Optional narration string."
@@ -116,7 +126,7 @@ class LLMService:
     @staticmethod
     def extract_memory(tone: str, user_message: str, applied_delta: str) -> str:
         payload = {"tone": tone, "user_message": user_message, "applied_delta": applied_delta}
-        prompt = f"Extract one memory sentence (max 25 words). Return JSON {{\"memory\": \"...\"}}\n{json.dumps(payload)}"
+        prompt = build_call_prompt("memory", payload)
         result = generate_json("memory", prompt, MemoryExtract)
         return result.memory
 
@@ -142,7 +152,7 @@ class LLMService:
 
     @staticmethod
     def generate_opening(situation: str, agents: list[dict]):
-        from llm.schemas import DialogueResponse, OpeningResponse
+        from llm.schemas import OpeningResponse
 
         keys = [a.get("id", "commander") for a in agents]
         init = LLMService.game_init(1, keys)
@@ -162,11 +172,21 @@ class LLMService:
     ):
         from llm.schemas import DialogueResponse
 
+        compressed = {"memory_summary": memories}
+        if state_snapshot:
+            try:
+                compressed.update(json.loads(state_snapshot))
+            except json.JSONDecodeError:
+                compressed["state_snapshot"] = state_snapshot
+
         dlg = LLMService.dialogue_generation(
             ["commander"],
-            {"memory_summary": memories},
+            compressed,
             user_message,
             max_speakers=2,
+            scenario_context_summary=situation[:300],
+            tone=tone,
+            last_dialogue=last_dialogue,
         )
         lines = [
             {"agent_id": to_persona_id(l.speaking_agent), "name": l.speaking_agent, "line": l.ai_response}
@@ -186,13 +206,17 @@ class LLMService:
     def final_evaluation_legacy(
         scenario_summaries: str, trends: str, memories: list[str]
     ) -> FinalEvaluation:
-        from llm.schemas import DimensionScores
+        summaries = scenario_summaries
+        if isinstance(summaries, str):
+            try:
+                summaries = json.loads(summaries)
+            except json.JSONDecodeError:
+                summaries = {"summary": scenario_summaries}
 
         payload = {
-            "scenario_summaries": scenario_summaries,
+            "scenario_summaries": summaries,
             "trends": trends,
             "memories": memories,
         }
-        prompt = f"Holistic leadership evaluation. Return JSON with leadership_analysis, strengths, weaknesses, cohesion_impact, emotional_impact, dimension_scores.\n{json.dumps(payload)}"
-        data = generate_json("evaluation", prompt, FinalEvaluation)
-        return data
+        prompt = build_call_prompt("evaluation", payload)
+        return generate_json("evaluation", prompt, FinalEvaluation)

@@ -10,9 +10,9 @@ if (-not (Test-Path $py)) {
 
 if (-not (Test-Path ".env")) {
     Copy-Item ".env.example" ".env"
+    Write-Host "Created .env from .env.example — set GEMINI_API_KEY for live LLM."
 }
 
-$env:LLM_MOCK = "1"
 if (-not $env:DATABASE_URL) {
     $env:DATABASE_URL = "sqlite:///instance/ldm.db"
 }
